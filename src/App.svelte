@@ -5,7 +5,6 @@
 
   import { persist, createLocalStorage } from "@macfja/svelte-persistent-store";
   import { writable } from "svelte/store";
-  import { balanceOwner } from "./utils/utils";
 
   let account = persist(writable(null), createLocalStorage(), "account");
 
@@ -24,7 +23,7 @@
       message = "Please Installed Metatask";
     }
     (async () => {
-      await getBalance();
+      // await getBalance();
     })();
   });
 
