@@ -1,14 +1,45 @@
 <script>
   import truncateEthAddress from "truncate-eth-address";
+  import { writable } from "svelte/store";
+  import { persist, createLocalStorage } from "@macfja/svelte-persistent-store";
   export let isWalletInstalled, connectWallet, loading, account, balance;
 
   let showDrawer = false;
-
+  let theme = localStorage.getItem("theme");
   let truncatedAccount = account === null ? null : truncateEthAddress(account);
 
   // hide modal
   function toggleDrawer() {
     showDrawer = !showDrawer;
+  }
+
+  async function changeTheme(choice) {
+    const body = document.body;
+    switch (choice) {
+      case (choice = "cmyk"):
+        localStorage.setItem("theme", "cmyk");
+        persist(writable("cmyk"), createLocalStorage(), "theme");
+        theme = "cmyk";
+        body.setAttribute("data-theme", "cmyk");
+        break;
+
+      case (choice = "garden"):
+        localStorage.setItem("theme", "garden");
+        persist(writable("garden"), createLocalStorage(), "theme");
+        theme = "garden";
+        body.setAttribute("data-theme", "garden");
+        break;
+
+      case (choice = "dark"):
+        localStorage.setItem("theme", "dark");
+        persist(writable("dark"), createLocalStorage(), "theme");
+        theme = "dark";
+        body.setAttribute("data-theme", "dark");
+        break;
+
+      default:
+        break;
+    }
   }
 </script>
 
@@ -61,10 +92,65 @@
     <div class="drawer-content" />
     <div class="drawer-side">
       <label htmlFor="my-drawer-4" class="drawer-overlay" />
-      <ul class="menu p-4 w-80 bg-base-100 text-base-content">
+      <ul class="menu p-4 w-full md:max-w-sm bg-base-100 text-base-content">
         <!-- Sidebar content here -->
+
+        <!-- change themes -->
+        <div class="flex gap-3 items-center">
+          <span class="text-sm">Theme</span>
+          <div class="tabs tabs-boxed py-3 w-full">
+            <span
+              class={`tab text-lg ${theme === "garden" && "tab-active"}`}
+              on:click={() => changeTheme("garden")}>Auto</span
+            >
+
+            <span
+              class={`tab text-lg ${theme === "cmyk" && "tab-active"}`}
+              on:click={() => changeTheme("cmyk")}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="w-6 h-6"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"
+                />
+              </svg>
+            </span>
+
+            <!-- night theme -->
+            <span
+              class={`tab text-lg ${theme === "dark" && "tab-active"}`}
+              on:click={() => changeTheme("dark")}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="w-6 h-6"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"
+                />
+              </svg>
+            </span>
+          </div>
+        </div>
+
+        <!-- button for connecting to wallet -->
+
         {#if isWalletInstalled}
-          <div class="flex items-center lg:order-2">
+          <div class="flex items-center lg:order-2 mt-3">
             {#if isWalletInstalled && truncatedAccount === null}
               <button
                 on:click={connectWallet}

@@ -1,8 +1,6 @@
 <script>
   import Header from "./lib/Header.svelte";
-
-  import { onMount } from "svelte";
-
+  import { onMount, onDestroy } from "svelte";
   import { persist, createLocalStorage } from "@macfja/svelte-persistent-store";
   import { writable } from "svelte/store";
 
@@ -16,6 +14,7 @@
   let message = "";
 
   onMount(() => {
+    localStorage.setItem("theme", "garden");
     if (window?.ethereum) {
       message = "Ethereum support is available";
       isWalletInstalled = true;
