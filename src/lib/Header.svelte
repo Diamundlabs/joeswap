@@ -43,7 +43,7 @@
   }
 </script>
 
-<div>
+<div class="z-20 relative">
   <div class="navbar bg-base-100">
     <div class="navbar-start">
       <div class="dropdown">
@@ -72,10 +72,14 @@
         <label
           on:click={toggleDrawer}
           htmlFor="my-drawer-4"
-          class="drawer-button btn btn-primary">Connect</label
+          class="drawer-button btn btn-sm">Connect</label
         >
       {:else}
-        <button on:click={connectWallet} color="dark">
+        <button
+          on:click={toggleDrawer}
+          color="dark"
+          class="drawer-button btn btn-sm"
+        >
           {truncatedAccount}
         </button>
       {/if}
@@ -175,7 +179,11 @@
                 Browser Wallet
               </button>
             {:else}
-              <button on:click={connectWallet} color="dark">
+              <button
+                on:click={connectWallet}
+                color="dark"
+                class="drawer-button btn btn-sm"
+              >
                 {truncatedAccount}
               </button>
             {/if}
