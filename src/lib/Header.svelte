@@ -2,7 +2,11 @@
   import truncateEthAddress from "truncate-eth-address";
   import { writable } from "svelte/store";
   import { persist, createLocalStorage } from "@macfja/svelte-persistent-store";
+  import { ethers } from "ethers";
+
   export let isWalletInstalled, connectWallet, loading, account, balance;
+
+  const provider = new ethers.providers.Web3Provider(window.ethereum);
 
   let showDrawer = false;
   let theme = localStorage.getItem("theme");
@@ -11,6 +15,19 @@
   // hide modal
   function toggleDrawer() {
     showDrawer = !showDrawer;
+  }
+
+  // disconnect wallet
+  async function disconnectWallet() {
+    console.log("all");
+    // persist(writable(null), createLocalStorage(), "account");
+    // localStorage.setItem("account", null);
+    account = null;
+
+    if (provider && provider.getSigner()) {
+      // Disconnect the signer
+      provider.getSigner().disconnect();
+    }
   }
 
   async function changeTheme(choice) {
@@ -43,7 +60,7 @@
   }
 </script>
 
-<div class="z-20 relative">
+<div class="">
   <div class="navbar bg-base-100">
     <div class="navbar-start">
       <div class="dropdown">
@@ -72,7 +89,7 @@
         <label
           on:click={toggleDrawer}
           htmlFor="my-drawer-4"
-          class="drawer-button btn btn-sm">Connect</label
+          class="drawer-button btn text-lg">Connect</label
         >
       {:else}
         <button
@@ -94,7 +111,7 @@
       class="drawer-toggle"
     />
     <div class="drawer-content" />
-    <div class="drawer-side">
+    <div class={`drawer-side ${showDrawer && "z-20 relative"}`}>
       <label htmlFor="my-drawer-4" class="drawer-overlay" />
       <ul class="menu p-4 w-full md:max-w-sm bg-base-100 text-base-content">
         <!-- Sidebar content here -->
@@ -159,7 +176,7 @@
               <button
                 on:click={connectWallet}
                 color="dark"
-                class="w-full py-4 flex text-start items-center gap-2"
+                class="w-full py-4 flex text-start justify-start items-center gap-2 btn"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -180,11 +197,11 @@
               </button>
             {:else}
               <button
-                on:click={connectWallet}
+                on:click={disconnectWallet}
                 color="dark"
-                class="drawer-button btn btn-sm"
+                class="w-full py-4 flex text-start justify-start items-center gap-2 btn"
               >
-                {truncatedAccount}
+                Disconnect Wallet
               </button>
             {/if}
           </div>

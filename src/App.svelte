@@ -23,13 +23,16 @@
       message = "Please Installed Metatask";
     }
     (async () => {
-      // await getBalance();
+      await getBalance();
     })();
   });
 
   async function getBalance() {
     if ($account !== null || $account !== undefined || $account !== "") {
-      balanceOwner($account).then((result) => (balance = result));
+      balanceOwner($account).then((result) => {
+        balance = result;
+        console.log(result);
+      });
     } else {
       balance = 0;
     }
