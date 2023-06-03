@@ -5,7 +5,8 @@
 
   let selectedToken = "ETH";
   let showDropDown = false;
-  let tokenBalance = parseUnits("0.00251");
+  let ETHBalance = parseUnits("0.0251");
+  let tokenBalance = parseUnits("100");
   let truncatedAccount = account === null ? null : truncateEthAddress(account);
 </script>
 
@@ -52,8 +53,7 @@
           </div>
         </div>
         <span class="pl-4">
-          Balance: {tokenBalance &&
-            formatUnits(tokenBalance || parseUnits("0"))}
+          Balance: {ETHBalance && formatUnits(ETHBalance || parseUnits("0"))}
         </span>
       </div>
       <div
@@ -81,7 +81,7 @@
             type="number"
             class="input input-ghost focus:outline-0 focus:bg-base-300 text-4xl pl-4"
           />
-          <span class="p-2 text-base">JOE</span>
+          <span class="p-2 text-base">LGTN</span>
         </div>
         <span class="pl-4">
           Balance: {tokenBalance &&
