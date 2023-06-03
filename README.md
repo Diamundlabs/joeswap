@@ -1,10 +1,8 @@
 # joeswap
-A simple web3 project that allows swapping of tokens on whatever network you connect to. 
+A simple web3 project that allows swapping of tokens (ETH to LGTN and vice versa) on sepolia testnet. 
 
-<img
-  src="src/app_image.png"
-  alt="Home Page"
-  style="display: inline-block; margin: 0 auto;  max-width: 300px max-height:200px" />
+<img width="1440" alt="app_image"
+style="display: inline-block; margin: 0 auto;  max-width: 300px max-height:200px"src="https://github.com/Diamundlabs/joeswap/assets/12428501/b65b2325-c899-4e18-938a-bff7c2439542" />
 
 ### Deployed Contract Addresses
 
