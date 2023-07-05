@@ -1,8 +1,14 @@
 import React, { useState } from "react"
+import MetaMask from "../assets/metamask.svg"
+import { toast } from 'react-toastify';
+
+let theme = localStorage.getItem("theme");
 
 const Header = ({ isWalletInstalled }) => {
   const [showDrawer, setDrawer] = useState(false);
-  let theme = localStorage.getItem("theme");
+  const [isLoading, setIsLoading] = useState(false);
+  const isMountedRef = React.useRef(true);
+
 
 
   // hide modal
@@ -10,6 +16,49 @@ const Header = ({ isWalletInstalled }) => {
     setDrawer(!showDrawer);
   }
 
+  //   const {
+  //     account,
+  //     custom: { connectMetamask, connectorName: lastConnector, disconnectWallet },
+  //   } = web3;
+  // const connectWallet = React.useCallback(
+  //   (connector = '') => {
+  //     const connectorName = connector ?? lastConnector;
+  //     if (account?.length > 0 && !(chainId == null || isNaN(+chainId)) && connectorName?.length > 0) {
+  //       try {
+  //         setIsLoading(true);
+  //         handleEVMWalletConnection({
+  //           chainId,
+  //           walletAddress: account,
+  //           walletType: connectorName,
+  //           onError: () => {
+  //             setIsLoading(false);
+  //           },
+  //         });
+  //       } catch (_) {
+  //         setIsLoading(false);
+  //         toast("Something Went Wrong. Please Try Again.")
+  //       }
+  //     }
+  //   },
+  //   [chainId, account, lastConnector],
+  // );
+
+  // // connect wallet
+  // const handleMetamaskConnection = async () => {
+  //   try {
+  //     await disconnectWallet();
+  //     isMountedRef.current = false;
+  //     if (account?.length > 0 && lastConnector === 'METAMASK') {
+  //       connectWallet('METAMASK');
+  //       return;
+  //     }
+  //     setIsLoading(true);
+  //     await connectMetamask();
+  //   } catch (error) {
+  //     toast("Something Went Wrong. Please Try Again.")
+  //     setIsLoading(false);
+  //   }
+  // };
 
   async function changeTheme(choice) {
     const body = document.body;
@@ -33,6 +82,10 @@ const Header = ({ isWalletInstalled }) => {
         break;
     }
   }
+
+  React.useEffect(() => {
+
+  }, []);
 
   return (
 
@@ -136,43 +189,39 @@ const Header = ({ isWalletInstalled }) => {
 
             {/* <!-- button for connecting to wallet --> */}
 
-            {isWalletInstalled &&
-              <div className="flex items-center lg:order-2 mt-3">
-                <button
-                  color="dark"
-                  className="w-full py-4 flex text-start justify-start items-center gap-2 btn"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth="1.5"
-                    stroke="currentColor"
-                    className="w-6 h-6"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M21 12a2.25 2.25 0 00-2.25-2.25H15a3 3 0 11-6 0H5.25A2.25 2.25 0 003 12m18 0v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6m18 0V9M3 12V9m18 0a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 9m18 0V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v3"
-                    />
-                  </svg>
+            {isWalletInstalled ?
+              <>
+                {!isLoading &&
+                  <div className="flex items-center lg:order-2 mt-3">
+                    <div
+                      color="dark"
+                      className="w-full py- h-fit py-3 flex text-start justify-between btn btn-sm"
+                    >
+                      <div className="flex justify-between w-fit gap-2 items-center">
+                        <img src={MetaMask} alt="React Logo" className="w-8" />
+                        <span>Metamask</span>
+                      </div>
+                      <button
+                        className=""
 
-                  Browser Wallet
-                </button>
+                      >Connect</button>
+                    </div>
+                  </div>
+                }
+              </>
+              :
+              <div className="flex items-center lg:order-2">
+                <a
+                  href="https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn"
+                >
+                  <button
+                    className="inline-flex items-center p-2 mt-3 btn text-sm text-gray-500 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
+                  >
+                    Install Wallet
+                  </button>
+                </a>
               </div>
             }
-            <div className="flex items-center lg:order-2">
-              <a
-                href="https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn"
-              >
-                <button
-                  className="inline-flex items-center p-2 mt-3 btn text-sm text-gray-500 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
-                >
-                  Install Wallet
-                </button>
-              </a>
-            </div>
-
           </ul>
         </div>
       </div>

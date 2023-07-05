@@ -10,7 +10,7 @@ const Body = () => {
   useEffect(() => {
     localStorage.setItem("theme", "garden");
     if (window?.ethereum) {
-      message = "Ethereum support is available";
+      setMessage("Ethereum support is available");
       setIsWalletInstalled(true);
     } else {
       setMessage("Please Installed Metatask");
@@ -53,9 +53,9 @@ const Body = () => {
           </div>
         </div>
       }
-      <div class="h-screen overflow-hidden">
+      <div className="h-screen overflow-hidden">
 
-        <div class="h-16">
+        <div className="h-16">
           <Header
             isWalletInstalled={isWalletInstalled}
           />
