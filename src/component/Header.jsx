@@ -1,6 +1,6 @@
 import React, { useState } from "react"
 import MetaMask from "../assets/metamask.svg"
-import { toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 
 let theme = localStorage.getItem("theme");
 
@@ -8,7 +8,7 @@ const Header = ({ isWalletInstalled }) => {
   const [showDrawer, setDrawer] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const isMountedRef = React.useRef(true);
-
+  const [walletAddress, setWalletAddress] = useState("");
 
 
   // hide modal
@@ -16,49 +16,60 @@ const Header = ({ isWalletInstalled }) => {
     setDrawer(!showDrawer);
   }
 
-  //   const {
-  //     account,
-  //     custom: { connectMetamask, connectorName: lastConnector, disconnectWallet },
-  //   } = web3;
-  // const connectWallet = React.useCallback(
-  //   (connector = '') => {
-  //     const connectorName = connector ?? lastConnector;
-  //     if (account?.length > 0 && !(chainId == null || isNaN(+chainId)) && connectorName?.length > 0) {
-  //       try {
-  //         setIsLoading(true);
-  //         handleEVMWalletConnection({
-  //           chainId,
-  //           walletAddress: account,
-  //           walletType: connectorName,
-  //           onError: () => {
-  //             setIsLoading(false);
-  //           },
-  //         });
-  //       } catch (_) {
-  //         setIsLoading(false);
-  //         toast("Something Went Wrong. Please Try Again.")
-  //       }
-  //     }
-  //   },
-  //   [chainId, account, lastConnector],
-  // );
+  // connect wallet
+  const handleWalletConnect = async () => {
+    if (typeof window != "undefined" && typeof window.ethereum != "undefined") {
+      try {
+        /* MetaMask is installed */
+        const accounts = await window.ethereum.request({
+          method: "eth_requestAccounts",
+        });
+        setWalletAddress(accounts[0]);
+        toast("MetaMask has been connected")
+        console.log(accounts[0]);
+      } catch (err) {
+        console.error(err.message);
+      }
+    } else {
+      /* MetaMask is not installed */
+      console.log("Please install MetaMask");
+      toast("MetaMask not installed")
+    }
+  };
 
-  // // connect wallet
-  // const handleMetamaskConnection = async () => {
-  //   try {
-  //     await disconnectWallet();
-  //     isMountedRef.current = false;
-  //     if (account?.length > 0 && lastConnector === 'METAMASK') {
-  //       connectWallet('METAMASK');
-  //       return;
-  //     }
-  //     setIsLoading(true);
-  //     await connectMetamask();
-  //   } catch (error) {
-  //     toast("Something Went Wrong. Please Try Again.")
-  //     setIsLoading(false);
-  //   }
-  // };
+  const getCurrentWalletConnected = async () => {
+    if (typeof window != "undefined" && typeof window.ethereum != "undefined") {
+      try {
+        const accounts = await window.ethereum.request({
+          method: "eth_accounts",
+        });
+        if (accounts.length > 0) {
+          setWalletAddress(accounts[0]);
+          console.log(accounts[0]);
+        } else {
+          console.log("Connect to MetaMask using the Connect button");
+        }
+      } catch (err) {
+        console.error(err.message);
+      }
+    } else {
+      /* MetaMask is not installed */
+      console.log("Please install MetaMask");
+    }
+  };
+
+  const addWalletListener = async () => {
+    if (typeof window != "undefined" && typeof window.ethereum != "undefined") {
+      window.ethereum.on("accountsChanged", (accounts) => {
+        setWalletAddress(accounts[0]);
+        console.log(accounts[0]);
+      });
+    } else {
+      /* MetaMask is not installed */
+      setWalletAddress("");
+      console.log("Please install MetaMask");
+    }
+  };
 
   async function changeTheme(choice) {
     const body = document.body;
@@ -84,8 +95,9 @@ const Header = ({ isWalletInstalled }) => {
   }
 
   React.useEffect(() => {
-
-  }, []);
+    getCurrentWalletConnected();
+    addWalletListener();
+  }, [walletAddress]);
 
   return (
 
@@ -118,7 +130,7 @@ const Header = ({ isWalletInstalled }) => {
             onClick={toggleDrawer}
             htmlFor="my-drawer-4"
             className="drawer-button btn text-lg">
-            Connect</label>
+            Connect{walletAddress && walletAddress.length > 0 ? "ed" : ""}</label>
         </div>
       </div>
 
@@ -203,8 +215,15 @@ const Header = ({ isWalletInstalled }) => {
                       </div>
                       <button
                         className=""
-
-                      >Connect</button>
+                        onClick={handleWalletConnect}
+                      >
+                        {walletAddress && walletAddress.length > 0
+                          ? `Connected: ${walletAddress.substring(
+                            0,
+                            6
+                          )}...${walletAddress.substring(38)}`
+                          : "Connect Wallet"}
+                      </button>
                     </div>
                   </div>
                 }
