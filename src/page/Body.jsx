@@ -4,9 +4,13 @@ import Header from '../component/Header';
 
 const Body = () => {
   const [isWalletInstalled, setIsWalletInstalled] = useState(false);
+  const [isWallet, setIsWallet] = useState(false);
   const [message, setMessage] = useState("");
   const [showToast, setShowToast] = useState(true);
   const [accountBalance, setAccountBalance] = useState('');
+
+  const [input1, setInput1] = useState('');
+  const [input2, setInput2] = useState('');
 
 
   useEffect(() => {
@@ -18,6 +22,13 @@ const Body = () => {
       setMessage("Please Installed Metatask");
     }
   }, [])
+
+  const swapFields = () => {
+    // Swap the values of input1 and input2
+    const temp = input1;
+    setInput1(input2);
+    setInput2(temp);
+  }
 
 
   return (
@@ -61,6 +72,7 @@ const Body = () => {
           <Header
             setAccountBalance={setAccountBalance}
             isWalletInstalled={isWalletInstalled}
+            setIsWallet={setIsWallet}
           />
         </div>
         <div className="z-10 px-6 sm:px-0 h-full">
@@ -71,6 +83,8 @@ const Body = () => {
                 <div className="text-xl focus:outline-1 flex items-center mt-3">
                   <input
                     type="number"
+                    value={input1}
+                    onChange={(e) => setInput1(e.target.value)}
                     className="input input-ghost focus:outline-0 focus:bg-base-300 text-4xl pl-4"
                   />
                   <span className="p-2 text-base">ETH</span>
@@ -81,6 +95,7 @@ const Body = () => {
                 </span>
               </div>
               <div
+                onClick={swapFields}
                 className="bg-base-100 rounded-md w-fit p-2 mx-auto my-1 absolute top-40 left-0 right-0 z-10 hover:cursor-pointer hover:bg-base-200"
               >
                 <svg
@@ -103,6 +118,8 @@ const Body = () => {
                 <div className="text-xl focus:outline-1 flex items-center mt-3">
                   <input
                     type="number"
+                    value={input2}
+                    onChange={(e) => setInput2(e.target.value)}
                     className="input input-ghost focus:outline-0 focus:bg-base-300 text-4xl pl-4"
                   />
                   <span className="p-2 text-base">LGTN</span>
@@ -112,18 +129,11 @@ const Body = () => {
                   {/* {tokenBalance && formatUnits(tokenBalance || parseUnits("0"))} */}
                 </span>
               </div>
-
-              {/* {#if isWalletInstalled && truncatedAccount === null}
-        <button
-          onClick={toggleDrawer}
-          className="btn btn-primary w-full mt-4 block text-lg"
-          >Connect Wallet</button
-        >
-      {:else}
-        <button color="dark" className="btn btn-primary w-full mt-4 block text-lg">
-          Swap Tokens
-        </button>
-      {/if} */}
+              {isWallet &&
+                <button color="dark" className="btn btn-primary w-full mt-4 block text-lg">
+                  Swap Tokens
+                </button>
+              }
             </div>
           </div>
         </div>

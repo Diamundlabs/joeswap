@@ -6,7 +6,7 @@ import Web3 from 'web3';
 
 let theme = localStorage.getItem("theme");
 
-const Header = ({ isWalletInstalled, setAccountBalance }) => {
+const Header = ({ isWalletInstalled, setAccountBalance, setIsWallet }) => {
   const [showDrawer, setDrawer] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [walletAddress, setWalletAddress] = useState("");
@@ -56,6 +56,7 @@ const Header = ({ isWalletInstalled, setAccountBalance }) => {
         });
         if (accounts.length > 0) {
           setWalletAddress(accounts[0]);
+          setIsWallet(true)
 
           // Get the account balance
           const balance = await web3.eth.getBalance(accounts[0]);
@@ -67,6 +68,7 @@ const Header = ({ isWalletInstalled, setAccountBalance }) => {
           setAccountBalance(etherBalance);
         } else {
           setAccountBalance("");
+          setIsWallet(false)
         }
       } catch (err) {
         console.error(err.message);
@@ -83,6 +85,7 @@ const Header = ({ isWalletInstalled, setAccountBalance }) => {
         setWalletAddress(accounts[0]);
         // Get the account balance
         if (accounts.length > 0) {
+          setIsWallet(true)
           const balance = await web3.eth.getBalance(accounts[0]);
           // Convert balance from Wei to Ether
           const etherBalance = web3.utils.fromWei(balance, 'ether');
@@ -91,6 +94,7 @@ const Header = ({ isWalletInstalled, setAccountBalance }) => {
           setAccountBalance(etherBalance);
         } else {
           setAccountBalance("");
+          setIsWallet(false)
         }
       });
     } else {
