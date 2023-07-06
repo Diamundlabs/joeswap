@@ -1,14 +1,16 @@
 import React, { useState } from "react"
 import MetaMask from "../assets/metamask.svg"
 import { toast, ToastContainer } from 'react-toastify';
+import Web3 from 'web3';
+
 
 let theme = localStorage.getItem("theme");
 
-const Header = ({ isWalletInstalled }) => {
+const Header = ({ isWalletInstalled, setAccountBalance }) => {
   const [showDrawer, setDrawer] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const isMountedRef = React.useRef(true);
   const [walletAddress, setWalletAddress] = useState("");
+  const web3 = new Web3(window.ethereum);
 
 
   // hide modal
@@ -25,10 +27,18 @@ const Header = ({ isWalletInstalled }) => {
           method: "eth_requestAccounts",
         });
         setWalletAddress(accounts[0]);
+        // Get the account balance
+        const balance = await web3.eth.getBalance(accounts[0]);
+
+        // Convert balance from Wei to Ether
+        const etherBalance = web3.utils.fromWei(balance, 'ether');
+
+        // Update the state with the account balance
+        setAccountBalance(etherBalance);
         toast("MetaMask has been connected")
-        console.log(accounts[0]);
       } catch (err) {
         console.error(err.message);
+        toast("User rejected the request")
       }
     } else {
       /* MetaMask is not installed */
@@ -36,6 +46,7 @@ const Header = ({ isWalletInstalled }) => {
       toast("MetaMask not installed")
     }
   };
+
 
   const getCurrentWalletConnected = async () => {
     if (typeof window != "undefined" && typeof window.ethereum != "undefined") {
@@ -45,9 +56,17 @@ const Header = ({ isWalletInstalled }) => {
         });
         if (accounts.length > 0) {
           setWalletAddress(accounts[0]);
-          console.log(accounts[0]);
+
+          // Get the account balance
+          const balance = await web3.eth.getBalance(accounts[0]);
+
+          // Convert balance from Wei to Ether
+          const etherBalance = web3.utils.fromWei(balance, 'ether');
+
+          // Update the state with the account balance
+          setAccountBalance(etherBalance);
         } else {
-          console.log("Connect to MetaMask using the Connect button");
+          setAccountBalance("");
         }
       } catch (err) {
         console.error(err.message);
@@ -60,14 +79,23 @@ const Header = ({ isWalletInstalled }) => {
 
   const addWalletListener = async () => {
     if (typeof window != "undefined" && typeof window.ethereum != "undefined") {
-      window.ethereum.on("accountsChanged", (accounts) => {
+      window.ethereum.on("accountsChanged", async (accounts) => {
         setWalletAddress(accounts[0]);
-        console.log(accounts[0]);
+        // Get the account balance
+        if (accounts.length > 0) {
+          const balance = await web3.eth.getBalance(accounts[0]);
+          // Convert balance from Wei to Ether
+          const etherBalance = web3.utils.fromWei(balance, 'ether');
+
+          // Update the state with the account balance
+          setAccountBalance(etherBalance);
+        } else {
+          setAccountBalance("");
+        }
       });
     } else {
       /* MetaMask is not installed */
       setWalletAddress("");
-      console.log("Please install MetaMask");
     }
   };
 
@@ -224,6 +252,7 @@ const Header = ({ isWalletInstalled }) => {
                           )}...${walletAddress.substring(38)}`
                           : "Connect Wallet"}
                       </button>
+
                     </div>
                   </div>
                 }

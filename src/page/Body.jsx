@@ -6,6 +6,8 @@ const Body = () => {
   const [isWalletInstalled, setIsWalletInstalled] = useState(false);
   const [message, setMessage] = useState("");
   const [showToast, setShowToast] = useState(true);
+  const [accountBalance, setAccountBalance] = useState('');
+
 
   useEffect(() => {
     localStorage.setItem("theme", "garden");
@@ -38,7 +40,7 @@ const Body = () => {
               <span className="sr-only">Close</span>
               <svg
                 aria-hidden="true"
-                class="w-5 h-5"
+                className="w-5 h-5"
                 fill="currentColor"
                 viewBox="0 0 20 20"
                 xmlns="http://www.w3.org/2000/svg"
@@ -57,6 +59,7 @@ const Body = () => {
 
         <div className="h-16">
           <Header
+            setAccountBalance={setAccountBalance}
             isWalletInstalled={isWalletInstalled}
           />
         </div>
@@ -73,9 +76,9 @@ const Body = () => {
                   <span className="p-2 text-base">ETH</span>
 
                 </div>
-                {/* <span className="pl-4">
-          Balance: {ETHBalance && formatUnits(ETHBalance || parseUnits("0"))}
-        </span> */}
+                <span className="pl-4">
+                  Balance: {accountBalance === "" ? "N/A" : (Number(accountBalance).toFixed(3))}
+                </span>
               </div>
               <div
                 className="bg-base-100 rounded-md w-fit p-2 mx-auto my-1 absolute top-40 left-0 right-0 z-10 hover:cursor-pointer hover:bg-base-200"
