@@ -6,7 +6,7 @@ import Web3 from 'web3';
 
 let theme = localStorage.getItem("theme");
 
-const Header = ({ isWalletInstalled, setAccountBalance, setIsWallet }) => {
+const Header = ({ isWalletInstalled, setAccountBalance, setIsWallet, setWallet }) => {
   const [showDrawer, setDrawer] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [walletAddress, setWalletAddress] = useState("");
@@ -27,6 +27,7 @@ const Header = ({ isWalletInstalled, setAccountBalance, setIsWallet }) => {
           method: "eth_requestAccounts",
         });
         setWalletAddress(accounts[0]);
+        setWallet(accounts[0]);
         // Get the account balance
         const balance = await web3.eth.getBalance(accounts[0]);
 
@@ -56,6 +57,7 @@ const Header = ({ isWalletInstalled, setAccountBalance, setIsWallet }) => {
         });
         if (accounts.length > 0) {
           setWalletAddress(accounts[0]);
+          setWallet(accounts[0]);
           setIsWallet(true)
 
           // Get the account balance
@@ -83,6 +85,7 @@ const Header = ({ isWalletInstalled, setAccountBalance, setIsWallet }) => {
     if (typeof window != "undefined" && typeof window.ethereum != "undefined") {
       window.ethereum.on("accountsChanged", async (accounts) => {
         setWalletAddress(accounts[0]);
+        setWallet(accounts[0]);
         // Get the account balance
         if (accounts.length > 0) {
           setIsWallet(true)

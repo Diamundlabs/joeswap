@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import Header from '../component/Header';
-
+import Web3 from 'web3';
+import { ERC20_ABI } from '../helpers/helper';
 
 const Body = () => {
   const [isWalletInstalled, setIsWalletInstalled] = useState(false);
@@ -8,6 +9,8 @@ const Body = () => {
   const [message, setMessage] = useState("");
   const [showToast, setShowToast] = useState(true);
   const [accountBalance, setAccountBalance] = useState('');
+  const [balanceERC20, setBalanceERC20] = useState('');
+  const [wallet, setWallet] = useState('');
 
   const [input1, setInput1] = useState('');
   const [input2, setInput2] = useState('');
@@ -29,6 +32,38 @@ const Body = () => {
     setInput1(input2);
     setInput2(temp);
   }
+
+  // get ERC token balance
+  const getERC20 = async () => {
+    // Check if Web3 has been injected by the browser (Metamask)
+    if (window.ethereum) {
+      const web3 = new Web3(window.ethereum);
+      const tokenAddress = import.meta.env.VITE_ERC20TOKEN_CONTRACT_ADDRESS;
+      const accountAddress = wallet;
+
+      // Get the ERC20 token contract instance
+      const tokenContract = new web3.eth.Contract(ERC20_ABI, tokenAddress);
+
+      // Get the token balance for the specified account
+      await tokenContract.methods.balanceOf(accountAddress).call()
+        .then(result => {
+          setBalanceERC20(result);
+        })
+        .catch(error => {
+          console.error('Error fetching token balance:', error);
+        });
+    } else {
+      console.error('Metamask not detected');
+    }
+  }
+
+  useEffect(() => {
+    {
+      isWallet &&
+        getERC20()
+    }
+  }, [wallet])
+
 
 
   return (
@@ -73,6 +108,7 @@ const Body = () => {
             setAccountBalance={setAccountBalance}
             isWalletInstalled={isWalletInstalled}
             setIsWallet={setIsWallet}
+            setWallet={setWallet}
           />
         </div>
         <div className="z-10 px-6 sm:px-0 h-full">
@@ -125,8 +161,7 @@ const Body = () => {
                   <span className="p-2 text-base">LGTN</span>
                 </div>
                 <span className="pl-4">
-                  Balance:
-                  {/* {tokenBalance && formatUnits(tokenBalance || parseUnits("0"))} */}
+                  Balance: {balanceERC20}
                 </span>
               </div>
               {isWallet &&
