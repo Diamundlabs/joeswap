@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import Header from '../component/Header';
 import Web3 from 'web3';
-import { ERC20_ABI } from '../helpers/helper';
+import { ERC20_ABI, Router } from '../helpers/helper';
 
 const Body = () => {
   const [isWalletInstalled, setIsWalletInstalled] = useState(false);
@@ -51,6 +51,32 @@ const Body = () => {
         })
         .catch(error => {
           console.error('Error fetching token balance:', error);
+        });
+    } else {
+      console.error('Metamask not detected');
+    }
+  }
+
+  // get sawp premonition
+  const getOutputs = async (value) => {
+    console.log(value)
+    // Check if Web3 has been injected by the browser (Metamask)
+    if (window.ethereum) {
+      const web3 = new Web3(window.ethereum);
+      const routerAddress = import.meta.env.VITE_ROUTER_CONTRACT_ADDRESS;
+      const accountAddress = wallet;
+
+      // Get the ERC20 token contract instance
+      const tokenContract = new web3.eth.Contract(Router, routerAddress);
+
+      // Get the token balance for the specified account
+      await tokenContract.methods.getAmountsOut(value * 10 ** 18, [import.meta.env.VITE_WETH_CONTRACT_ADDRESS, import.meta.env.VITE_ERC20TOKEN_CONTRACT_ADDRESS]).call()
+        .then(result => {
+          setInput2(web3.utils.fromWei(result[1], 'ether'))
+        })
+        .catch(error => {
+          console.error('Error fetching amount:', error);
+          setInput2("")
         });
     } else {
       console.error('Metamask not detected');
@@ -120,7 +146,7 @@ const Body = () => {
                   <input
                     type="number"
                     value={input1}
-                    onChange={(e) => setInput1(e.target.value)}
+                    onChange={(e) => { setInput1(e.target.value); getOutputs(e.target.value) }}
                     className="input input-ghost focus:outline-0 focus:bg-base-300 text-4xl pl-4"
                   />
                   <span className="p-2 text-base">ETH</span>

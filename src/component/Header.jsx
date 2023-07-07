@@ -32,6 +32,7 @@ const Header = ({ isWalletInstalled, setAccountBalance, setIsWallet, setWallet }
         const balance = await web3.eth.getBalance(accounts[0]);
 
         // Convert balance from Wei to Ether
+        console.log(balance)
         const etherBalance = web3.utils.fromWei(balance, 'ether');
 
         // Update the state with the account balance
