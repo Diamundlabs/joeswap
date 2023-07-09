@@ -1249,3 +1249,16 @@ export const Router = [
     "type": "function"
   }
 ]
+
+export function getTimeStamp() {
+  // Get the current time
+  let currentTime = new Date();
+
+  // Add one hour to the current time
+  let nextHour = new Date(currentTime.getTime() + 60 * 60 * 1000);
+
+  // Get the timestamp in milliseconds
+  let timestamp = nextHour.getTime();
+
+  return (timestamp);
+}

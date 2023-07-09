@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react'
 import Header from '../component/Header';
 import Web3 from 'web3';
-import { ERC20_ABI, Router } from '../helpers/helper';
+import { ERC20_ABI, getTimeStamp, Router } from '../helpers/helper';
+import { toast } from 'react-toastify';
 
 const Body = () => {
   const [isWalletInstalled, setIsWalletInstalled] = useState(false);
   const [isWallet, setIsWallet] = useState(false);
   const [message, setMessage] = useState("");
+  const [swapMessage, setSwapMessage] = useState("Swap Tokens");
+  const [currentSwap, setCurrentSwap] = useState(true);
   const [showToast, setShowToast] = useState(true);
   const [accountBalance, setAccountBalance] = useState('');
   const [balanceERC20, setBalanceERC20] = useState('');
@@ -14,6 +17,14 @@ const Body = () => {
 
   const [input1, setInput1] = useState('');
   const [input2, setInput2] = useState('');
+
+  //
+  const [value1, setValue1] = useState('');
+  const [value2, setValue2] = useState('');
+
+
+  // BN instance
+  let BN = Web3.utils.BN;
 
 
   useEffect(() => {
@@ -31,6 +42,7 @@ const Body = () => {
     const temp = input1;
     setInput1(input2);
     setInput2(temp);
+    setCurrentSwap(!currentSwap)
   }
 
   // get ERC token balance
@@ -47,7 +59,7 @@ const Body = () => {
       // Get the token balance for the specified account
       await tokenContract.methods.balanceOf(accountAddress).call()
         .then(result => {
-          setBalanceERC20(result);
+          setBalanceERC20(web3.utils.fromWei(result, 'ether'));
         })
         .catch(error => {
           console.error('Error fetching token balance:', error);
@@ -57,27 +69,77 @@ const Body = () => {
     }
   }
 
-  // get sawp premonition
+  // get swap premonition
   const getOutputs = async (value) => {
-    console.log(value)
     // Check if Web3 has been injected by the browser (Metamask)
     if (window.ethereum) {
       const web3 = new Web3(window.ethereum);
+      let valueEntered = web3.utils.toWei(value)
       const routerAddress = import.meta.env.VITE_ROUTER_CONTRACT_ADDRESS;
-      const accountAddress = wallet;
 
       // Get the ERC20 token contract instance
       const tokenContract = new web3.eth.Contract(Router, routerAddress);
 
       // Get the token balance for the specified account
-      await tokenContract.methods.getAmountsOut(value * 10 ** 18, [import.meta.env.VITE_WETH_CONTRACT_ADDRESS, import.meta.env.VITE_ERC20TOKEN_CONTRACT_ADDRESS]).call()
+      await tokenContract.methods.getAmountsOut(valueEntered, [currentSwap ? import.meta.env.VITE_WETH_CONTRACT_ADDRESS : import.meta.env.VITE_ERC20TOKEN_CONTRACT_ADDRESS, currentSwap ? import.meta.env.VITE_ERC20TOKEN_CONTRACT_ADDRESS : import.meta.env.VITE_WETH_CONTRACT_ADDRESS]).call()
         .then(result => {
           setInput2(web3.utils.fromWei(result[1], 'ether'))
+          setValue1(result[0])
+          setValue2(result[1])
         })
         .catch(error => {
           console.error('Error fetching amount:', error);
           setInput2("")
         });
+    } else {
+      console.error('Metamask not detected');
+    }
+  }
+
+  // swap tokens
+  const swapToken = async () => {
+    // Check if Web3 has been injected by the browser (Metamask)
+    if (window.ethereum) {
+      const web3 = new Web3(window.ethereum);
+      const routerAddress = import.meta.env.VITE_ROUTER_CONTRACT_ADDRESS;
+
+      // Get the router contract instance
+      const routerContract = new web3.eth.Contract(Router, routerAddress);
+
+      setSwapMessage("Swapping Tokens")
+
+      // swap eth for erc20Token
+      if (currentSwap) {
+        const valueToWei = web3.utils.toWei(input1, 'ether')
+        await routerContract.methods.swapETHForExactTokens(value2, [import.meta.env.VITE_WETH_CONTRACT_ADDRESS, import.meta.env.VITE_ERC20TOKEN_CONTRACT_ADDRESS], wallet, getTimeStamp()).send({ from: wallet, value: valueToWei })
+          .then(result => {
+            toast.success("Token successfully swapped")
+            setSwapMessage("Swap Tokens")
+            setInput1("")
+            setInput2("")
+            getERC20()
+          })
+          .catch(error => {
+            console.error('Error swapping tokens:', error);
+            setSwapMessage("Swap Tokens")
+          });
+      }
+      // swap erc20Token for eth
+      else {
+        await routerContract.methods.swapExactTokensForETH(value1, value2, [import.meta.env.VITE_ERC20TOKEN_CONTRACT_ADDRESS, import.meta.env.VITE_WETH_CONTRACT_ADDRESS], wallet, getTimeStamp()).call()
+          .then(result => {
+            console.log("result", result)
+            toast.success("Token successfully swapped")
+            setSwapMessage("Swap Tokens")
+            setInput1("")
+            setInput2("")
+          })
+          .catch(error => {
+            console.error('Error swapping tokens:', error);
+            setSwapMessage("Swap Tokens")
+          });
+
+      }
     } else {
       console.error('Metamask not detected');
     }
@@ -149,11 +211,11 @@ const Body = () => {
                     onChange={(e) => { setInput1(e.target.value); getOutputs(e.target.value) }}
                     className="input input-ghost focus:outline-0 focus:bg-base-300 text-4xl pl-4"
                   />
-                  <span className="p-2 text-base">ETH</span>
+                  <span className="p-2 text-base">{currentSwap ? "ETH" : "LGTN"}</span>
 
                 </div>
                 <span className="pl-4">
-                  Balance: {accountBalance === "" ? "N/A" : (Number(accountBalance).toFixed(3))}
+                  Balance: {accountBalance === "" ? "N/A" : currentSwap ? (Number(accountBalance).toFixed(3)) : (Number(balanceERC20).toFixed(3))}
                 </span>
               </div>
               <div
@@ -181,18 +243,20 @@ const Body = () => {
                   <input
                     type="number"
                     value={input2}
-                    onChange={(e) => setInput2(e.target.value)}
-                    className="input input-ghost focus:outline-0 focus:bg-base-300 text-4xl pl-4"
+                    disabled
+                    onChange={(e) => { setInput2(e.target.value); getOutputs(e.target.value) }}
+                    style={{ backgroundColor: 'transparent' }}
+                    className="input border-0 input-ghost focus:outline-0 focus:bg-base-300 text-4xl pl-4"
                   />
-                  <span className="p-2 text-base">LGTN</span>
+                  <span className="p-2 text-base">{!currentSwap ? "ETH" : "LGTN"}</span>
                 </div>
                 <span className="pl-4">
-                  Balance: {balanceERC20}
+                  Balance: {currentSwap ? (Number(balanceERC20).toFixed(3)) : (Number(accountBalance).toFixed(3))}
                 </span>
               </div>
               {isWallet &&
-                <button color="dark" className="btn btn-primary w-full mt-4 block text-lg">
-                  Swap Tokens
+                <button onClick={() => swapToken()} disabled={input1 === "" ? true : false || swapMessage !== "Swap Tokens"} color="dark" className="btn btn-primary w-full mt-4 block text-lg">
+                  {swapMessage}
                 </button>
               }
             </div>

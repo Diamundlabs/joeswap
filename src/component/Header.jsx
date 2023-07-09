@@ -1,6 +1,6 @@
 import React, { useState } from "react"
 import MetaMask from "../assets/metamask.svg"
-import { toast, ToastContainer } from 'react-toastify';
+import { toast } from 'react-toastify';
 import Web3 from 'web3';
 
 
