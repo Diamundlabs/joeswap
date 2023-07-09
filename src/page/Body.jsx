@@ -1,10 +1,13 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useId, useState } from 'react'
 import Header from '../component/Header';
 import Web3 from 'web3';
 import { ERC20_ABI, getTimeStamp, Router } from '../helpers/helper';
 import { toast } from 'react-toastify';
+import MoonLoader from "react-spinners/MoonLoader";
+
 
 const Body = () => {
+  const id = useId();
   const [isWalletInstalled, setIsWalletInstalled] = useState(false);
   const [isWallet, setIsWallet] = useState(false);
   const [message, setMessage] = useState("");
@@ -41,6 +44,8 @@ const Body = () => {
     const temp = input1;
     setInput1(input2);
     setInput2(temp);
+    setValue1(input2)
+    setValue2(input1)
     setCurrentSwap(!currentSwap)
   }
 
@@ -105,7 +110,6 @@ const Body = () => {
           setValue2(result[1])
         })
         .catch(error => {
-          console.error('Error fetching amount:', error);
           setInput2("")
         });
     } else {
@@ -124,6 +128,8 @@ const Body = () => {
       const routerContract = new web3.eth.Contract(Router, routerAddress);
       // Get the ERC20 contract address
       const tokenAddress = import.meta.env.VITE_ERC20TOKEN_CONTRACT_ADDRESS;
+      const tokenContract = new web3.eth.Contract(ERC20_ABI, tokenAddress);
+
 
 
       setSwapMessage("Swapping Tokens")
@@ -141,29 +147,30 @@ const Body = () => {
             getETHBalance()
           })
           .catch(error => {
-            console.error('Error swapping tokens:', error);
             toast.error("Swap failed")
             setSwapMessage("Swap Tokens")
           });
       }
       // swap erc20Token for eth
       else {
-        await routerContract.methods.swapExactTokensForETH(value1, value2, [import.meta.env.VITE_ERC20TOKEN_CONTRACT_ADDRESS, import.meta.env.VITE_WETH_CONTRACT_ADDRESS], wallet, getTimeStamp()).send({ from: wallet })
-          .then(result => {
-            toast.success("Tokens successfully swapped")
-            setSwapMessage("Swap Tokens")
-            setInput1("")
-            setInput2("")
-            getERC20()
-            getETHBalance()
+        await tokenContract.methods.approve(routerAddress, value1).send({ from: wallet })
+          .then(async result => {
+            console.log("result", result)
+            await routerContract.methods.swapExactTokensForETH(value1, value2, [import.meta.env.VITE_ERC20TOKEN_CONTRACT_ADDRESS, import.meta.env.VITE_WETH_CONTRACT_ADDRESS], wallet, getTimeStamp()).send({ from: wallet })
+              .then(result => {
+                toast.success("Tokens successfully swapped")
+                setSwapMessage("Swap Tokens")
+                setInput1("")
+                setInput2("")
+                getERC20()
+                getETHBalance()
+              })
+              .catch(error => {
+                toast.error("Swap failed")
+                setSwapMessage("Swap Tokens")
+              });
           })
           .catch(error => {
-            console.error('Error swapping tokens:', error);
-            toast.error("Swap failed")
-            setSwapMessage("Swap Tokens")
-          })
-          .catch(error => {
-            console.error('Error approving spender:', error);
             setSwapMessage("Swap Tokens")
           });
 
@@ -286,9 +293,18 @@ const Body = () => {
               </div>
               {isWallet &&
                 <button onClick={() => swapToken()}
-                  disabled={(input1 === "" || Number(input1) === 0) || swapMessage !== "Swap Tokens" || ((currentSwap && Number(input1) > Number(accountBalance))) || ((!currentSwap && Number(input1) > Number(balanceERC20)))}
-                  color="dark" className="btn btn-primary w-full mt-4 block text-lg">
-                  {swapMessage}
+                  className="btn btn-primary w-full mt-4 block text-lg flex items-center gap-3"
+                  disabled={(input1 === "" || Number(input1) === 0) || (value2 === "" || Number(value2) === 0) || swapMessage !== "Swap Tokens" || ((currentSwap && Number(input1) > Number(accountBalance))) || ((!currentSwap && Number(input1) > Number(balanceERC20)))}
+                  color="dark"
+                >
+                  {swapMessage !== "Swap Tokens" && <MoonLoader
+                    color={"#ffffff"}
+                    size={20}
+                    data-testid={id} />}
+                  <span>
+                    {swapMessage}
+                  </span>
+
                 </button>
               }
             </div>
