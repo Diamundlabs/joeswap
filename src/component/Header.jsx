@@ -136,7 +136,7 @@ const Header = ({ isWalletInstalled, setAccountBalance, setIsWallet, setWallet }
 
   return (
 
-    <div className="" onClick={() => console.log("here")}>
+    <div className="">
       <div className="navbar bg-base-100">
         <div className="navbar-start">
           <a className="btn btn-ghost normal-case text-xl">joeswap</a>

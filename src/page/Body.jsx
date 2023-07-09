@@ -18,7 +18,6 @@ const Body = () => {
   const [input1, setInput1] = useState('');
   const [input2, setInput2] = useState('');
 
-  //
   const [value1, setValue1] = useState('');
   const [value2, setValue2] = useState('');
 
@@ -123,6 +122,9 @@ const Body = () => {
 
       // Get the router contract instance
       const routerContract = new web3.eth.Contract(Router, routerAddress);
+      // Get the ERC20 contract address
+      const tokenAddress = import.meta.env.VITE_ERC20TOKEN_CONTRACT_ADDRESS;
+
 
       setSwapMessage("Swapping Tokens")
 
@@ -140,21 +142,28 @@ const Body = () => {
           })
           .catch(error => {
             console.error('Error swapping tokens:', error);
+            toast.error("Swap failed")
             setSwapMessage("Swap Tokens")
           });
       }
       // swap erc20Token for eth
       else {
-        await routerContract.methods.swapExactTokensForETH(value1, value2, [import.meta.env.VITE_ERC20TOKEN_CONTRACT_ADDRESS, import.meta.env.VITE_WETH_CONTRACT_ADDRESS], wallet, getTimeStamp()).call()
+        await routerContract.methods.swapExactTokensForETH(value1, value2, [import.meta.env.VITE_ERC20TOKEN_CONTRACT_ADDRESS, import.meta.env.VITE_WETH_CONTRACT_ADDRESS], wallet, getTimeStamp()).send({ from: wallet })
           .then(result => {
-            console.log("result", result)
-            toast.success("Token successfully swapped")
+            toast.success("Tokens successfully swapped")
             setSwapMessage("Swap Tokens")
             setInput1("")
             setInput2("")
+            getERC20()
+            getETHBalance()
           })
           .catch(error => {
             console.error('Error swapping tokens:', error);
+            toast.error("Swap failed")
+            setSwapMessage("Swap Tokens")
+          })
+          .catch(error => {
+            console.error('Error approving spender:', error);
             setSwapMessage("Swap Tokens")
           });
 
@@ -227,6 +236,8 @@ const Body = () => {
                   <input
                     type="number"
                     value={input1}
+                    disabled={swapMessage === "Swapping Tokens"}
+                    style={{ backgroundColor: 'transparent' }}
                     onChange={(e) => { setInput1(e.target.value); getOutputs(e.target.value) }}
                     className="input input-ghost focus:outline-0 focus:bg-base-300 text-4xl pl-4"
                   />
@@ -270,7 +281,7 @@ const Body = () => {
                   <span className="p-2 text-base">{!currentSwap ? "ETH" : "LGTN"}</span>
                 </div>
                 <span className="pl-4">
-                  Balance: {currentSwap ? (Number(balanceERC20).toFixed(3)) : (Number(accountBalance).toFixed(3))}
+                  Balance: {balanceERC20 === "" ? "N/A" : currentSwap ? (Number(balanceERC20).toFixed(3)) : (Number(accountBalance).toFixed(3))}
                 </span>
               </div>
               {isWallet &&
