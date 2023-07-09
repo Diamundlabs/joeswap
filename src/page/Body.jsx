@@ -274,7 +274,9 @@ const Body = () => {
                 </span>
               </div>
               {isWallet &&
-                <button onClick={() => swapToken()} disabled={Number(input1) < 0 ? true : false || swapMessage !== "Swap Tokens"} color="dark" className="btn btn-primary w-full mt-4 block text-lg">
+                <button onClick={() => swapToken()}
+                  disabled={(input1 === "" || Number(input1) === 0) || swapMessage !== "Swap Tokens" || ((currentSwap && Number(input1) > Number(accountBalance))) || ((!currentSwap && Number(input1) > Number(balanceERC20)))}
+                  color="dark" className="btn btn-primary w-full mt-4 block text-lg">
                   {swapMessage}
                 </button>
               }
