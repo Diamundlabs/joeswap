@@ -45,6 +45,24 @@ const Body = () => {
     setCurrentSwap(!currentSwap)
   }
 
+  // Function to get the ETH balance of the connected wallet
+  const getETHBalance = async () => {
+    const web3 = new Web3(window.ethereum);
+
+    try {
+      // Get the balance of the selected address
+      const balanceWei = await web3.eth.getBalance(wallet);
+
+      // Convert the balance from Wei to Ether
+      const balanceEth = web3.utils.fromWei(balanceWei, 'ether');
+
+      // set the ETH balance
+      setAccountBalance(balanceEth)
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   // get ERC token balance
   const getERC20 = async () => {
     // Check if Web3 has been injected by the browser (Metamask)
@@ -118,6 +136,7 @@ const Body = () => {
             setInput1("")
             setInput2("")
             getERC20()
+            getETHBalance()
           })
           .catch(error => {
             console.error('Error swapping tokens:', error);
@@ -255,7 +274,7 @@ const Body = () => {
                 </span>
               </div>
               {isWallet &&
-                <button onClick={() => swapToken()} disabled={input1 === "" ? true : false || swapMessage !== "Swap Tokens"} color="dark" className="btn btn-primary w-full mt-4 block text-lg">
+                <button onClick={() => swapToken()} disabled={Number(input1) < 0 ? true : false || swapMessage !== "Swap Tokens"} color="dark" className="btn btn-primary w-full mt-4 block text-lg">
                   {swapMessage}
                 </button>
               }

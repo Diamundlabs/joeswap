@@ -32,7 +32,6 @@ const Header = ({ isWalletInstalled, setAccountBalance, setIsWallet, setWallet }
         const balance = await web3.eth.getBalance(accounts[0]);
 
         // Convert balance from Wei to Ether
-        console.log(balance)
         const etherBalance = web3.utils.fromWei(balance, 'ether');
 
         // Update the state with the account balance
@@ -137,36 +136,40 @@ const Header = ({ isWalletInstalled, setAccountBalance, setIsWallet, setWallet }
 
   return (
 
-    <div className="">
+    <div className="" onClick={() => console.log("here")}>
       <div className="navbar bg-base-100">
         <div className="navbar-start">
-          <div className="dropdown">
-            <label tabIndex={0} className="btn btn-ghost lg:hidden">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              ><path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M4 6h16M4 12h8m-8 6h16"
-                /></svg
-              >
-            </label>
-          </div>
           <a className="btn btn-ghost normal-case text-xl">joeswap</a>
         </div>
         <div className="navbar-center hidden lg:flex" />
 
-        <div className="navbar-end">
+        <div className="navbar-end flex">
           <label
             onClick={toggleDrawer}
             htmlFor="my-drawer-4"
             className="drawer-button btn text-lg">
-            Connect{walletAddress && walletAddress.length > 0 ? "ed" : ""}</label>
+            Connect{walletAddress && walletAddress.length > 0 ? "ed" : ""}
+            {walletAddress && walletAddress.length > 0 &&
+              <div className="dropdown">
+                <label className="btn btn-ghost hover:bg-inherit">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  ><path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M4 6h16M4 12h8m-8 6h16"
+                    /></svg
+                  >
+                </label>
+              </div>
+            }
+          </label>
+
         </div>
       </div>
 
@@ -180,7 +183,7 @@ const Header = ({ isWalletInstalled, setAccountBalance, setIsWallet, setWallet }
         <div className="drawer-content" />
         <div className={`drawer-side ${showDrawer && "z-20 relative"}`}>
           <label htmlFor="my-drawer-4" className="drawer-overlay" />
-          <ul className="menu p-4 w-full md:max-w-sm bg-base-100 text-base-content">
+          <ul className="menu p-4 w-full md:max-w-sm bg-base-100 text-base-content h-screen">
             {/* Sidebar content here */}
 
             {/* <!-- change themes --> */}
